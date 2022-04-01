@@ -7,45 +7,46 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 class List extends React.Component{
     constructor(props){
-        console.log(props.data1)
+        console.log("props",props.data1)
         super(props)
         this.state={
             data:props.data1,
             loading: {},
             scheduler: {},
         }
-    }
+    }    
 
-    fetchData(){
-        // axios.get('http://127.0.0.1:8000/list/').then(response=>{
-        //     if (response?.data?.EC2) {
-                const { data: { EC2: data } } = this.state.data;
-                // const data = this.state
-                let loading = {};
-                let tempArray = []
-                Object.keys(data).forEach(region => {
-                    const ec2List = data[region];
-                    ec2List.map(ec2 => {
-                        const instanceId = Object.keys(ec2)[0];
-                        let instanceData = Object.values(ec2)[0];
-                        instanceData = { ...instanceData, region, instanceId };
-                        tempArray.push(instanceData)
-                        console.log(instanceData)
-                    })
-                })                
-                this.setState({ data: tempArray, loading: loading }); 
-            // } 
-        // });
-    }
+    // fetchData(){
+    //     // axios.get('http://127.0.0.1:8000/list/').then(response=>{
+    //     //     if (response?.data?.EC2) {
+    //             const { data: { EC2: data } } = this.state.data;
+    //             // const data = this.state
+    //             let loading = {};
+    //             let tempArray = []
+    //             Object.keys(data).forEach(region => {
+    //                 const ec2List = data[region];
+    //                 ec2List.map(ec2 => {
+    //                     const instanceId = Object.keys(ec2)[0];
+    //                     let instanceData = Object.values(ec2)[0];
+    //                     instanceData = { ...instanceData, region, instanceId };
+    //                     tempArray.push(instanceData)
+    //                     console.log(instanceData)
+    //                 })
+    //             })                
+    //             this.setState({ data: tempArray, loading: loading }); 
+    //     //     } 
+    //     // });
+    // }
 
-    componentDidMount(){
-        this.fetchData();
-    }
+    // componentDidMount(){
+    //     this.fetchData();
+    // }
 
-    startInstance = async (instanceId, action) => {
+    startInstance = async (instanceId, action, region) => {
         let data = {
             "instanceId": instanceId,
-            "action": action
+            "action": action,
+            "region": region
           };
         
         this.setState(prev => ({ loading: { ...prev.loading, [instanceId]: true } }))
@@ -113,7 +114,6 @@ class List extends React.Component{
 
     render(){
         const { loading, data: instData } = this.state;
-        console.log(instData);
         const rows= instData.map((inst)=>
         <tr key={inst.instanceId}>
             <td>
@@ -146,9 +146,9 @@ class List extends React.Component{
             <div style={{ width: '20%', textAlign:'center', paddingLeft:'2%' }}>
 
                 { loading[inst.instanceId] ?  <CircularProgress size={ 30 }/> : inst.state == 'stopped' ?
-                    <button type="button" className="btn btn-info" onClick={() => this.startInstance(inst.instanceId, "START") }>
+                    <button type="button" className="btn btn-info" onClick={() => this.startInstance(inst.instanceId, "START", inst.region) }>
                         Start
-                    </button> : <button type="button" className="btn btn-info"  onClick={() => this.startInstance(inst.instanceId, "STOP") }>
+                    </button> : <button type="button" className="btn btn-info"  onClick={() => this.startInstance(inst.instanceId, "STOP", inst.region) }>
                         Stop
                     </button>
                 }

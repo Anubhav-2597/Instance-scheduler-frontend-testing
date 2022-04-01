@@ -10,7 +10,7 @@ class ListRegion extends React.Component{
         super();
         this.state = {
             data: [],
-            //regionList: false,
+            regData: [],
             checked: []
         }
     }
@@ -52,18 +52,12 @@ class ListRegion extends React.Component{
         this.fetchRegion();
     }
 
+    // componentDidUpdate(){
+    //     <List data1 = {this.state.regData} />
+    // }
+
     handleRegionChange = (event) => {
         const { checked } = this.state
-        // this.setState = ({[regionList]: event.target.checked});
-
-        // const target = event.target;
-        // const value = event.target.checked;
-        // const name = target.name;
-
-        // this.setState({
-        //     [name]: value
-        // });
-
         let updatedList = [...checked]
         if (event.target.checked) {
         updatedList = [...checked, event.target.value];
@@ -80,24 +74,27 @@ class ListRegion extends React.Component{
         try {
             const result = await axios.post('http://127.0.0.1:8000/region_info/', { ...updatedList }).then(response=>
             {
-                if(response?.data?.EC2){
-                    // const { data: { EC2: data } } = response
-                    const data = response
-                    console.log(data)
-                    this.setState({
-                        checked: [],
-                        data: data
-                    });
-                    <List data1={this.state.data}/>
-                }
+                if (response?.data?.EC2) {
+                    const { data: { EC2: data } } = response;
+                        // let loading = {};
+                    let tempArray = []
+                    Object.keys(data).forEach(region => {
+                        const ec2List = data[region];
+                        ec2List.map(ec2 => {
+                            const instanceId = Object.keys(ec2)[0];
+                            let instanceData = Object.values(ec2)[0];
+                            instanceData = { ...instanceData, region, instanceId };
+                            tempArray.push(instanceData)
+                            // console.log(tempArray)
+                        })
+                    })               
+                    console.log(tempArray) ;
+                    this.setState({ regData: tempArray }); 
+                    // console.log(data);
+                    // <List data1 = {this.state.tempArray} />
+                }  
+
             });
-            // if (result && result.status == '200') {
-            //     // this.setState(prev => ({ loading: { ...prev.loading, [instanceId]: false } }))
-            //     // this.fetchData();
-            //     // this.setState({checked: []});
-            //     // <list funct={this.fetchData}/>
-                
-            // }
         } 
         
         catch(e) {
@@ -143,11 +140,12 @@ class ListRegion extends React.Component{
 
     render(){
 
-        const { data: instData } = this.state;
+        const { data: instData, regData } = this.state;
+        // console.log("instData", instData);
         const rows= instData.map((inst, index)=>
-        <tr>          
+        <tr key={index}>          
             <td>     
-            <div key={index}> 
+            <div> 
                 <form>
                     <label>
                         {inst}
@@ -164,9 +162,14 @@ class ListRegion extends React.Component{
         </tr>
     )    
 
+    // console.log("rows", rows)
         return(
+            
             <div>
                 
+                { 
+                regData.length > 0 ? <List data1 = {regData}/> :
+                <div> 
                 <table className="table table-bordered">
                 <thead>
                     <tr>
@@ -176,8 +179,11 @@ class ListRegion extends React.Component{
                 <tbody>
                     {rows}
                 </tbody>
-            </table>
-            <button onClick={this.handleSubmit}>Submit</button>
+                </table>
+                <button onClick={this.handleSubmit}>Submit</button>
+                </div>
+                }
+            
             </div>
             
         );
@@ -185,5 +191,5 @@ class ListRegion extends React.Component{
 
 }
 
-export default ListRegion;
+export default ListRegion;      
 
