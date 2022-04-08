@@ -15,27 +15,6 @@ class ListRegion extends React.Component{
         }
     }
 
-    // fetchData(){
-    //     axios.get('http://127.0.0.1:8000/list/').then(response=>{
-    //         if (response?.data?.EC2) {
-    //             const { data: { EC2: data } } = response;
-    //             let loading = {};
-    //             let tempArray = []
-    //             Object.keys(data).forEach(region => {
-    //                 const ec2List = data[region];
-    //                 ec2List.map(ec2 => {
-    //                     const instanceId = Object.keys(ec2)[0];
-    //                     let instanceData = Object.values(ec2)[0];
-    //                     instanceData = { ...instanceData, region, instanceId };
-    //                     tempArray.push(instanceData)
-    //                     console.log(instanceData)
-    //                 })
-    //             })                
-    //             this.setState({ data: tempArray, loading: loading }); 
-    //         } 
-    //     });
-    // }
-
     fetchRegion(){
         axios.get('http://127.0.0.1:8000/list/').then(response=>{
             if(response?.data?.EC2){
@@ -52,9 +31,6 @@ class ListRegion extends React.Component{
         this.fetchRegion();
     }
 
-    // componentDidUpdate(){
-    //     <List data1 = {this.state.regData} />
-    // }
 
     handleRegionChange = (event) => {
         const { checked } = this.state
@@ -69,6 +45,7 @@ class ListRegion extends React.Component{
     }
 
     handleSubmit = async () => {
+        alert("region list submitted");
         const { checked } = this.state
         let updatedList = [...checked]
         try {
@@ -140,8 +117,8 @@ class ListRegion extends React.Component{
 
     render(){
 
-        const { data: instData, regData } = this.state;
-        // console.log("instData", instData);
+        const { data: instData, regData, checked } = this.state;
+        console.log("checked", checked);
         const rows= instData.map((inst, index)=>
         <tr key={index}>          
             <td>     
@@ -168,7 +145,7 @@ class ListRegion extends React.Component{
             <div>
                 
                 { 
-                regData.length > 0 ? <List data1 = {regData}/> :
+                regData.length > 0 ? <List data1 = {regData} checked1 = {checked}/> :
                 <div> 
                 <table className="table table-bordered">
                 <thead>
